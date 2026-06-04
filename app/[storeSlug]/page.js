@@ -27,13 +27,11 @@ export default function MenuPage({ params }) {
   const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  // STATI PER I FILTRI
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategory, setActiveCategory] = useState("Tutti i Gusti");
   const [activeFormat, setActiveFormat] = useState("Tutti i Formati");
   const [activeBrand, setActiveBrand] = useState("Tutte le Marche");
   
-  // PAGINAZIONE
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
@@ -54,12 +52,10 @@ export default function MenuPage({ params }) {
     if (storeSlug) loadData();
   }, [storeSlug]);
 
-  // Reset pagina quando cambia QUALSIASI filtro
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, activeCategory, activeFormat, activeBrand]);
 
-  // FILTRAGGIO TOTALE
   const filteredProducts = useMemo(() => {
     return allProducts.filter(p => {
       const matchSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) || p.brand?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -70,7 +66,6 @@ export default function MenuPage({ params }) {
     });
   }, [searchTerm, activeCategory, activeFormat, activeBrand, allProducts]);
 
-  // CALCOLO PAGINE
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
   const currentItems = useMemo(() => {
     const lastIndex = currentPage * itemsPerPage;
@@ -78,8 +73,9 @@ export default function MenuPage({ params }) {
     return filteredProducts.slice(firstIndex, lastIndex);
   }, [filteredProducts, currentPage]);
 
-  const uniqueFormats = ["Tutti i Formati", ...new Set(allProducts.map(p => p.formato).filter(Boolean))];
-  const uniqueBrands = ["Tutte le Marche", ...new Set(allProducts.map(p => p.brand).filter(Boolean))];
+  // Generazione dinamica ma sicura dei filtri
+  const uniqueFormats = useMemo(() => ["Tutti i Formati", ...new Set(allProducts.map(p => p.formato).filter(Boolean))], [allProducts]);
+  const uniqueBrands = useMemo(() => ["Tutte le Marche", ...new Set(allProducts.map(p => p.brand).filter(Boolean))], [allProducts]);
 
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-white font-black text-red-600 text-3xl italic uppercase animate-pulse tracking-tighter">SMO-KING</div>;
   if (!store) return <div className="p-20 text-center font-bold">Negozio non trovato.</div>;
@@ -87,7 +83,6 @@ export default function MenuPage({ params }) {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-10 font-sans">
       
-      {/* HEADER FISSO */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b p-4 flex flex-col items-center shadow-sm">
         <img src={store.logo_url || "https://www.smo-kingshop.it/img/smo-king-shop-logo-1627311740.jpg"} alt="Logo" className="h-10 mb-1 object-contain" />
         <h1 className="text-xl font-black italic uppercase tracking-widest text-red-600 leading-none">{store.subtext}</h1>
@@ -97,7 +92,6 @@ export default function MenuPage({ params }) {
 
       <main className="max-w-4xl mx-auto p-4 space-y-6">
         
-        {/* RICERCA */}
         <div className="relative">
           <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" size={20} />
           <input 
@@ -107,9 +101,8 @@ export default function MenuPage({ params }) {
           />
         </div>
 
-        {/* --- TRIS DI FILTRI SCROLLABILI --- */}
+        {/* FILTRI */}
         <div className="space-y-4">
-          {/* 1. GUSTI */}
           <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar px-1">
             {["Tutti i Gusti", "Cremoso", "Fruttato", "Ghiacciato", "Tabaccoso", "Tabaccoso e Cremoso", "Balsamici e Speziati"].map(cat => (
               <button key={cat} onClick={() => setActiveCategory(cat)}
@@ -119,7 +112,6 @@ export default function MenuPage({ params }) {
             ))}
           </div>
 
-          {/* 2. FORMATI */}
           <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar px-1">
             {uniqueFormats.map(formato => (
               <button key={formato} onClick={() => setActiveFormat(formato)}
@@ -129,7 +121,6 @@ export default function MenuPage({ params }) {
             ))}
           </div>
 
-          {/* 3. MARCHE (RITORNATE!) */}
           <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar px-1">
             {uniqueBrands.map(brand => (
               <button key={brand} onClick={() => setActiveBrand(brand)}
@@ -140,28 +131,43 @@ export default function MenuPage({ params }) {
           </div>
         </div>
 
-        {/* LISTA PRODOTTI */}
+        {/* LISTA PRODOTTI - FIX APPLICATO QUI */}
         <div className="grid grid-cols-1 gap-5">
           {currentItems.map(p => (
-            <div key={p.id} className="bg-white p-5 rounded-[2.5rem] shadow-sm border border-gray-100 flex gap-5 items-start relative overflow-hidden group">
-              {p.prezzo && (
-                <div className="absolute bottom-4 right-6 bg-red-600 text-white px-4 py-1.5 rounded-full font-black italic text-sm shadow-lg">
-                  €{parseFloat(p.prezzo).toFixed(2)}
-                </div>
-              )}
+            <div key={p.id} className="bg-white p-5 rounded-[2.5rem] shadow-sm border border-gray-100 flex gap-4 items-stretch relative overflow-hidden group">
+              
+              {/* Immagine del prodotto */}
               <div className="w-24 h-24 bg-gray-50 rounded-3xl overflow-hidden flex-shrink-0 border border-gray-100 p-2">
-                <img src={p.image_url || 'https://via.placeholder.com/150'} className="w-full h-full object-contain rounded-2xl" />
+                <img src={p.image_url || 'https://via.placeholder.com/150'} className="w-full h-full object-contain rounded-2xl" alt={p.name} />
               </div>
-              <div className="flex-1 pt-1">
-                <p className="text-[9px] font-black text-red-600 uppercase tracking-widest mb-1 italic leading-none">{p.brand}</p>
-                <h3 className="font-black text-slate-800 text-lg leading-tight mb-2 uppercase italic">{p.name}</h3>
-                {p.description && <p className="text-[12px] text-slate-400 font-medium mb-4 line-clamp-2 leading-relaxed italic">{p.description}</p>}
-                <div className="flex flex-wrap items-center gap-2">
+
+              {/* Contenuto Testuale: usiamo flex-col e justify-between per gestire lo spazio */}
+              <div className="flex-1 flex flex-col justify-between py-1">
+                <div>
+                  <p className="text-[9px] font-black text-red-600 uppercase tracking-widest mb-1 italic leading-none">{p.brand}</p>
+                  <h3 className="font-black text-slate-800 text-lg leading-tight mb-1 uppercase italic">{p.name}</h3>
+                  {p.description && (
+                    <p className="text-[12px] text-slate-400 font-medium mb-2 line-clamp-2 leading-relaxed italic">
+                      {p.description}
+                    </p>
+                  )}
+                </div>
+
+                {/* Footer della card: Categoria e Prezzo sulla stessa linea, spinti in fondo */}
+                <div className="flex justify-between items-center mt-auto pt-2">
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-50 rounded-full text-slate-500 border border-slate-100">
-                    <CategoryIcon cat={p.category} /><span className="text-[9px] font-black uppercase tracking-widest">{p.category}</span>
+                    <CategoryIcon cat={p.category} />
+                    <span className="text-[9px] font-black uppercase tracking-widest whitespace-nowrap">{p.category}</span>
                   </div>
+
+                  {p.prezzo && (
+                    <div className="bg-red-600 text-white px-4 py-1.5 rounded-full font-black italic text-sm shadow-md whitespace-nowrap">
+                      €{parseFloat(p.prezzo).toFixed(2)}
+                    </div>
+                  )}
                 </div>
               </div>
+
             </div>
           ))}
           
