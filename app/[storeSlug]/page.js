@@ -73,7 +73,6 @@ export default function MenuPage({ params }) {
     return filteredProducts.slice(firstIndex, lastIndex);
   }, [filteredProducts, currentPage]);
 
-  // Generazione dinamica ma sicura dei filtri
   const uniqueFormats = useMemo(() => ["Tutti i Formati", ...new Set(allProducts.map(p => p.formato).filter(Boolean))], [allProducts]);
   const uniqueBrands = useMemo(() => ["Tutte le Marche", ...new Set(allProducts.map(p => p.brand).filter(Boolean))], [allProducts]);
 
@@ -131,40 +130,41 @@ export default function MenuPage({ params }) {
           </div>
         </div>
 
-        {/* LISTA PRODOTTI - FIX APPLICATO QUI */}
+        {/* LISTA PRODOTTI - NUOVA STRUTTURA: PREZZO SOTTO L'IMMAGINE */}
         <div className="grid grid-cols-1 gap-5">
           {currentItems.map(p => (
-            <div key={p.id} className="bg-white p-5 rounded-[2.5rem] shadow-sm border border-gray-100 flex gap-4 items-stretch relative overflow-hidden group">
+            <div key={p.id} className="bg-white p-5 rounded-[2.5rem] shadow-sm border border-gray-100 flex gap-4 items-stretch">
               
-              {/* Immagine del prodotto */}
-              <div className="w-24 h-24 bg-gray-50 rounded-3xl overflow-hidden flex-shrink-0 border border-gray-100 p-2">
-                <img src={p.image_url || 'https://via.placeholder.com/150'} className="w-full h-full object-contain rounded-2xl" alt={p.name} />
+              {/* COLONNA SINISTRA: Immagine + Prezzo */}
+              <div className="flex flex-col items-center gap-2 w-24 flex-shrink-0">
+                <div className="w-24 h-24 bg-gray-50 rounded-3xl overflow-hidden border border-gray-100 p-2 flex-shrink-0">
+                  <img src={p.image_url || 'https://via.placeholder.com/150'} className="w-full h-full object-contain rounded-2xl" alt={p.name} />
+                </div>
+                {p.prezzo && (
+                  <div className="bg-red-600 text-white px-3 py-1 rounded-full font-black italic text-xs shadow-md whitespace-nowrap">
+                    €{parseFloat(p.prezzo).toFixed(2)}
+                  </div>
+                )}
               </div>
 
-              {/* Contenuto Testuale: usiamo flex-col e justify-between per gestire lo spazio */}
+              {/* COLONNA DESTRA: Info (Brand, Nome, Descrizione, Categoria) */}
               <div className="flex-1 flex flex-col justify-between py-1">
                 <div>
                   <p className="text-[9px] font-black text-red-600 uppercase tracking-widest mb-1 italic leading-none">{p.brand}</p>
                   <h3 className="font-black text-slate-800 text-lg leading-tight mb-1 uppercase italic">{p.name}</h3>
                   {p.description && (
-                    <p className="text-[12px] text-slate-400 font-medium mb-2 line-clamp-2 leading-relaxed italic">
+                    <p className="text-[12px] text-slate-400 font-medium line-clamp-2 leading-relaxed italic">
                       {p.description}
                     </p>
                   )}
                 </div>
 
-                {/* Footer della card: Categoria e Prezzo sulla stessa linea, spinti in fondo */}
-                <div className="flex justify-between items-center mt-auto pt-2">
+                {/* Categoria in fondo alla colonna destra */}
+                <div className="flex items-center gap-1.5 mt-2">
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-50 rounded-full text-slate-500 border border-slate-100">
                     <CategoryIcon cat={p.category} />
                     <span className="text-[9px] font-black uppercase tracking-widest whitespace-nowrap">{p.category}</span>
                   </div>
-
-                  {p.prezzo && (
-                    <div className="bg-red-600 text-white px-4 py-1.5 rounded-full font-black italic text-sm shadow-md whitespace-nowrap">
-                      €{parseFloat(p.prezzo).toFixed(2)}
-                    </div>
-                  )}
                 </div>
               </div>
 
