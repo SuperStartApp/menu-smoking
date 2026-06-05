@@ -27,11 +27,13 @@ export default function MenuPage({ params }) {
   const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   
+  // STATI PER I FILTRI
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategory, setActiveCategory] = useState("Tutti i Gusti");
   const [activeFormat, setActiveFormat] = useState("Tutti i Formati");
   const [activeBrand, setActiveBrand] = useState("Tutte le Marche");
   
+  // PAGINAZIONE
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
@@ -52,10 +54,12 @@ export default function MenuPage({ params }) {
     if (storeSlug) loadData();
   }, [storeSlug]);
 
+  // Reset pagina quando cambia QUALSIASI filtro
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, activeCategory, activeFormat, activeBrand]);
 
+  // FILTRAGGIO TOTALE
   const filteredProducts = useMemo(() => {
     return allProducts.filter(p => {
       const matchSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) || p.brand?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -66,6 +70,7 @@ export default function MenuPage({ params }) {
     });
   }, [searchTerm, activeCategory, activeFormat, activeBrand, allProducts]);
 
+  // CALCOLO PAGINE
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
   const currentItems = useMemo(() => {
     const lastIndex = currentPage * itemsPerPage;
@@ -82,6 +87,7 @@ export default function MenuPage({ params }) {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-10 font-sans">
       
+      {/* HEADER FISSO */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b p-4 flex flex-col items-center shadow-sm">
         <img src={store.logo_url || "https://www.smo-kingshop.it/img/smo-king-shop-logo-1627311740.jpg"} alt="Logo" className="h-10 mb-1 object-contain" />
         <h1 className="text-xl font-black italic uppercase tracking-widest text-red-600 leading-none">{store.subtext}</h1>
@@ -91,6 +97,7 @@ export default function MenuPage({ params }) {
 
       <main className="max-w-4xl mx-auto p-4 space-y-6">
         
+        {/* RICERCA */}
         <div className="relative">
           <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" size={20} />
           <input 
@@ -102,6 +109,7 @@ export default function MenuPage({ params }) {
 
         {/* FILTRI */}
         <div className="space-y-4">
+          {/* 1. GUSTI */}
           <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar px-1">
             {["Tutti i Gusti", "Cremoso", "Fruttato", "Ghiacciato", "Tabaccoso", "Tabaccoso e Cremoso", "Balsamici e Speziati"].map(cat => (
               <button key={cat} onClick={() => setActiveCategory(cat)}
@@ -111,6 +119,7 @@ export default function MenuPage({ params }) {
             ))}
           </div>
 
+          {/* 2. FORMATI */}
           <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar px-1">
             {uniqueFormats.map(formato => (
               <button key={formato} onClick={() => setActiveFormat(formato)}
@@ -120,6 +129,7 @@ export default function MenuPage({ params }) {
             ))}
           </div>
 
+          {/* 3. MARCHE */}
           <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar px-1">
             {uniqueBrands.map(brand => (
               <button key={brand} onClick={() => setActiveBrand(brand)}
@@ -130,7 +140,7 @@ export default function MenuPage({ params }) {
           </div>
         </div>
 
-        {/* LISTA PRODOTTI - NUOVA STRUTTURA: PREZZO SOTTO L'IMMAGINE */}
+        {/* LISTA PRODOTTI - DESIGN FINALE (Prezzo sotto immagine + Nicotina) */}
         <div className="grid grid-cols-1 gap-5">
           {currentItems.map(p => (
             <div key={p.id} className="bg-white p-5 rounded-[2.5rem] shadow-sm border border-gray-100 flex gap-4 items-stretch">
@@ -147,7 +157,7 @@ export default function MenuPage({ params }) {
                 )}
               </div>
 
-              {/* COLONNA DESTRA: Info (Brand, Nome, Descrizione, Categoria) */}
+              {/* COLONNA DESTRA: Info */}
               <div className="flex-1 flex flex-col justify-between py-1">
                 <div>
                   <p className="text-[9px] font-black text-red-600 uppercase tracking-widest mb-1 italic leading-none">{p.brand}</p>
@@ -159,15 +169,24 @@ export default function MenuPage({ params }) {
                   )}
                 </div>
 
-                {/* Categoria in fondo alla colonna destra */}
-                <div className="flex items-center gap-1.5 mt-2">
+                {/* TAGS: Categoria e Nicotina */}
+                <div className="flex flex-wrap items-center gap-2 mt-2">
+                  {/* Badge Categoria */}
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-50 rounded-full text-slate-500 border border-slate-100">
                     <CategoryIcon cat={p.category} />
                     <span className="text-[9px] font-black uppercase tracking-widest whitespace-nowrap">{p.category}</span>
                   </div>
+
+                  {/* Badge Nicotina */}
+                  {p.nicotina && (
+                    <div className="inline-flex items-center gap-1 px-3 py-1 bg-red-50 text-red-600 rounded-full border border-red-100">
+                      <span className="text-[9px] font-black uppercase tracking-widest whitespace-nowrap">
+                        Nic: {p.nicotina}mg
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
-
             </div>
           ))}
           
