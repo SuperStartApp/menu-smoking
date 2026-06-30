@@ -1,7 +1,7 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "Smo-King Menù Digitale",
+  title: "Menù Digitale",
   description: "Il catalogo liquidi ufficiale",
 };
 

@@ -79,13 +79,13 @@ export default function AdminPanel() {
     fetchData();
   }
 
-  if (loading) return <div className="p-20 text-center font-black text-red-600 animate-bounce uppercase italic tracking-tighter text-2xl">Smo-King...</div>;
+  if (loading) return <div className="p-20 text-center font-black text-red-600 animate-bounce uppercase italic tracking-tighter text-2xl">Menù Digitale...</div>;
 
   return (
     <div className="min-h-screen bg-slate-50 flex font-sans text-slate-900">
       {/* SIDEBAR */}
       <nav className="w-64 bg-slate-900 text-white p-6 flex flex-col gap-4 shadow-2xl flex-shrink-0">
-        <h2 className="text-xl font-black text-red-500 italic uppercase mb-10 tracking-tighter">Smo-King Admin</h2>
+        <h2 className="text-xl font-black text-red-500 italic uppercase mb-10 tracking-tighter">Menù Digitale Admin</h2>
         <button onClick={() => {setActiveTab('products'); setEditingProduct(null);}} className={`p-4 rounded-2xl text-left font-bold transition-all ${activeTab === 'products' ? 'bg-red-600 shadow-lg' : 'hover:bg-slate-800'}`}>📦 Catalogo</button>
         <button onClick={() => setActiveTab('inventory')} className={`p-4 rounded-2xl text-left font-bold transition-all ${activeTab === 'inventory' ? 'bg-red-600 shadow-lg' : 'hover:bg-slate-800'}`}>🔄 Distribuzione</button>
         <button onClick={() => {setActiveTab('stores'); setEditingStore(null);}} className={`p-4 rounded-2xl text-left font-bold transition-all ${activeTab === 'stores' ? 'bg-red-600 shadow-lg' : 'hover:bg-slate-800'}`}>🏪 Negozi</button>
